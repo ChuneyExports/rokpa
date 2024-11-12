@@ -1,6 +1,6 @@
-/* styles.css */
-
-/* Reset and Base Styles */
+/* ==========================================================================
+   1. Reset and Base Styles
+   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -12,38 +12,59 @@ body {
     background-color: #F3F4F6;
 }
 
-/* Navigation Styles */
+/* ==========================================================================
+   2. Layout and Container Styles
+   ========================================================================== */
+.container {
+    max-width: 64rem;
+    margin: 0 auto;
+}
+
+.text-center {
+    margin-top: 3rem;
+}
+
+.flex.justify-between {
+    align-items: center;
+}
+
+/* ==========================================================================
+   3. Navigation Styles
+   ========================================================================== */
 .nav-container {
     position: fixed;
     top: 0;
     width: 100%;
     background-color: rgb(245, 245, 245);
     z-index: 1000;
-    padding: 1rem;  /* Add padding for better spacing */
+    padding: 1rem;
 }
-
-/* Add this for better container alignment */
-.flex.justify-between {
-    align-items: center;
-}
-
 
 .logo {
     width: 20rem;
 }
 
-.text-center{
-    margin-top: 3rem;
-}
-
-#landingPage{
+/* ==========================================================================
+   4. Landing Page Styles
+   ========================================================================== */
+#landingPage {
     background-image: url(homepage-bg.jpg);
     background-size: 80rem, 50rem;
     padding: 4rem 2rem 8rem 2rem;
-
 }
 
-/* Portal Cards */
+/* ==========================================================================
+   5. Portal and Card Styles
+   ========================================================================== */
+.portal {
+    display: none;
+    padding-top: 5rem;
+}
+
+.portal.active {
+    display: block;
+}
+
 .portal-card {
     transition: all 0.3s ease;
     background: white;
@@ -57,7 +78,9 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Form Styles */
+/* ==========================================================================
+   6. Form Styles
+   ========================================================================== */
 .form-container {
     max-width: 800px;
     margin: 2rem auto;
@@ -92,8 +115,9 @@ body {
     ring: 2px solid #2563EB;
 }
 
-/* Add these styles to your existing CSS file */
-
+/* ==========================================================================
+   7. Modal Styles
+   ========================================================================== */
 .modal {
     position: fixed;
     top: 0;
@@ -116,12 +140,9 @@ body {
     margin: 1.5rem;
 }
 
-.container {
-    max-width: 64rem;
-    margin: 0 auto;
-}
-
-
+/* ==========================================================================
+   8. Profile Styles
+   ========================================================================== */
 .profile-info {
     display: flex;
     align-items: center;
@@ -157,14 +178,14 @@ body {
     gap: 0.75rem;
 }
 
-/* Grid Layout */
 .profile-grid {
     display: grid;
     gap: 1.5rem;
 }
 
-
-/* Button Styles */
+/* ==========================================================================
+   9. Button Styles
+   ========================================================================== */
 .btn {
     display: inline-block;
     padding: 0.75rem 1.5rem;
@@ -185,18 +206,9 @@ body {
     background-color: #1D4ED8;
 }
 
-
-/* Portal Specific Styles */
-.portal {
-    display: none;
-    padding-top: 5rem;
-}
-
-.portal.active {
-    display: block;
-}
-
-/* Filter Styles */
+/* ==========================================================================
+   10. Filter and Candidate Card Styles
+   ========================================================================== */
 .filter-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -212,7 +224,6 @@ body {
     background-color: white;
 }
 
-/* Candidate Card Styles */
 .candidate-card {
     background: white;
     border-radius: 0.5rem;
@@ -226,15 +237,11 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Animation Classes */
+/* ==========================================================================
+   11. Animation Styles
+   ========================================================================== */
 .fade-in {
     animation: fadeIn 0.3s ease-in;
-}
-
-/* About and Contact Pages */
-#aboutPage, #contactPage {
-    display: none;
-    padding-bottom: 2rem;
 }
 
 @keyframes fadeIn {
@@ -248,58 +255,67 @@ body {
     }
 }
 
+/* ==========================================================================
+   12. Page Specific Styles
+   ========================================================================== */
+#aboutPage, #contactPage {
+    display: none;
+    padding-bottom: 2rem;
+}
 
-/* Add to your existing CSS */
-
+/* ==========================================================================
+   13. Mobile Menu Styles
+   ========================================================================== */
 #mobile-menu-button {
     display: none;
     padding: 0.5rem;
-    margin-left: auto;  /* This will push it to the right */
+    margin-left: auto;
     background: none;
     border: none;
-    color: #2563EB;  /* Match your logo color */
+    color: #2563EB;
     cursor: pointer;
     outline: none;
 }
 
-@media (max-width:2560px){
-    #landingPage{
+/* ==========================================================================
+   14. Media Queries
+   ========================================================================== */
+/* Large Screens (2560px and above) */
+@media (max-width: 2560px) {
+    #landingPage {
         background-size: 130rem, 60rem;
-        background-repeat: no-repeat ;
-        padding: 10rem 4rem 15.5rem 4rem ;
-
-    
+        background-repeat: no-repeat;
+        padding: 10rem 4rem 15.5rem 4rem;
     }
 
-    #employer-portal{
-        margin-left:20rem;
-        margin-top:10rem;
-        margin-bottom: 15rem
+    #employer-portal {
+        margin-left: 20rem;
+        margin-top: 10rem;
+        margin-bottom: 15rem;
     }
 }
 
-@media(max-width:1440px){
-    #landingPage{
-        background-size: 80rem, 50rem;
-        background-repeat: no-repeat ;
-        padding: 3rem 4rem 5rem 4rem ;
-
-    
+/* Desktop and Laptop */
+@media (max-width: 1440px) {
+    #landingPage {
+        background-size: 80rem, 40rem;
+        background-repeat: no-repeat;
+        padding: 3rem 4rem 5rem 4rem;
     }
 
-    #employer-portal{
+    #employer-portal {
         width: 90%;
-        margin-left:4rem;
-        margin-top:5rem;
-        margin-bottom: 5rem
+        margin-left: 4rem;
+        margin-top: 5rem;
+        margin-bottom: 5rem;
     }
 
-    #about-page, #contact-page{
-        margin:2rem 2rem;
+    #about-page, #contact-page {
+        margin: 2rem 2rem;
     }
-
 }
-/* Responsive Navigation */
+
+/* Tablet and Mobile */
 @media (max-width: 768px) {
     #mobile-menu-button {
         display: block;
@@ -308,7 +324,7 @@ body {
     #nav-menu {
         display: none;
         position: absolute;
-        top: 100%;
+        top: calc(100% + 1px);
         left: 0;
         right: 0;
         background-color: white;
@@ -316,26 +332,11 @@ body {
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         flex-direction: column;
         align-items: start;
-    }
-
-    #mobile-menu-button {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    #mobile-menu-button svg {
-        width: 24px;
-        height: 24px;
+        border-top: 1px solid #e5e7eb;
     }
 
     #nav-menu.show {
         display: flex;
-    }
-
-    #nav-menu {
-        top: calc(100% + 1px);  /* Align perfectly below header */
-        border-top: 1px solid #e5e7eb;  /* Add a subtle border */
     }
 
     #nav-menu a, 
@@ -345,28 +346,36 @@ body {
         text-align: center;
     }
 
-    #landingPage{
+    #landingPage {
         background-size: 80rem, 100rem;
         background-position-x: -20rem;
-    
+        padding: 6rem 1rem 4rem 1rem;
     }
 
     .portal-grid {
         grid-template-columns: 1fr;
+        padding: 1rem;
     }
-    
+
     .form-container {
         margin: 1rem;
         padding: 1rem;
     }
-    
+
     .filter-container {
         grid-template-columns: 1fr;
     }
 
-    .portal-grid {
-        grid-template-columns: 1fr;
-        padding: 1rem;
+    .portal-card {
+        margin: 1rem 2.5rem;
+    }
+
+    #portal-card-title, #portal-card-desc {
+        text-align: center;
+    }
+
+    #contact-menu, #login-menu {
+        margin-left: 0;
     }
 
     .form-section {
@@ -379,32 +388,12 @@ body {
         padding: 1rem;
     }
 
-    /* Adjust landing page padding for mobile */
-    #landingPage {
-        padding: 6rem 1rem 4rem 1rem;
-    }
-
-    /* Adjust text sizes for mobile */
     #find-your-perfect-match {
         font-size: 2rem;
     }
-
-    .portal-card {
-        margin: 1rem 2.5rem;
-    }
-    
-    #portal-card-titlem #portal-card-desc{
-        text-align: center;
-    }
-
-    #contact-menu, #login-menu{
-        margin-left: 0;
-    }
-
-    
 }
 
-/* Additional responsive adjustments */
+/* Small Mobile Devices */
 @media (max-width: 480px) {
     .form-container {
         padding: 1rem;
