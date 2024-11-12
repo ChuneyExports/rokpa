@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginModal = document.getElementById('loginModal');
     const loginForm = document.getElementById('loginForm');
 
-    // Profile Modal HTML with enhanced download functionality
+    // Profile Modal HTML
     const profileModalHTML = `
     <div id="profileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl mx-4">
@@ -32,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
             <div id="profileContent" class="space-y-4">
                 <!-- Profile content will be inserted here -->
             </div>
-            <div id="downloadStats" class="mt-4 text-sm text-gray-600"></div>
         </div>
     </div>`;
 
@@ -80,30 +79,61 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Job Seeker Form Handling with enhanced resume storage
+    // Mobile menu handling
+    mobileMenuButton.addEventListener('click', () => {
+        navMenu.classList.toggle('show');
+    });
+
+    // Close menu when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!navMenu.contains(e.target) && !mobileMenuButton.contains(e.target)) {
+            navMenu.classList.remove('show');
+        }
+    });
+
+    // Close menu on window resize
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            navMenu.classList.remove('show');
+        }
+    });
+
+    // Portal navigation
+    function showPortal(portalElement) {
+        showPage(portalElement);
+        portalElement.classList.add('fade-in');
+    }
+
+    // Portal button handlers
+    jobSeekerButton.addEventListener('click', () => showPortal(jobSeekerPortal));
+    employerButton.addEventListener('click', () => showPortal(employerPortal));
+
+    // Back button functionality
+    backButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            showPage(landingPage);
+        });
+    });
+
+    // Job Seeker Form Handling
     const jobSeekerForm = document.querySelector('#jobSeekerForm');
     if (jobSeekerForm) {
-        jobSeekerForm.addEventListener('submit', async function(e) {
+        jobSeekerForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
             // Collect form data
             const formData = new FormData(jobSeekerForm);
             const jobSeekerData = Object.fromEntries(formData.entries());
             
-            // Handle resume file with better storage
+            // Handle resume file
             const resumeFile = document.querySelector('input[type="file"]').files[0];
             if (resumeFile) {
-                // Convert file to base64 for reliable storage
-                const base64Resume = await convertFileToBase64(resumeFile);
-                jobSeekerData.resume = base64Resume;
-                jobSeekerData.resumeFileName = resumeFile.name;
+                jobSeekerData.resume = URL.createObjectURL(resumeFile);
             }
             
-            // Store in localStorage with additional metadata
+            // Store in localStorage
             let jobSeekers = JSON.parse(localStorage.getItem('jobSeekers') || '[]');
-            jobSeekerData.id = Date.now().toString();
-            jobSeekerData.downloadCount = 0;
-            jobSeekerData.lastDownload = null;
+            jobSeekerData.id = Date.now().toString(); // Add unique ID
             jobSeekers.push(jobSeekerData);
             localStorage.setItem('jobSeekers', JSON.stringify(jobSeekers));
             
@@ -112,149 +142,203 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // File to Base64 conversion utility
-    function convertFileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
+    // Employer Portal Filtering
+    const filterForm = document.querySelector('#filterForm');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const experience = document.querySelector('#experienceFilter').value;
+            const education = document.querySelector('#educationFilter').value;
+            const gender = document.querySelector('#genderFilter').value;
+            
+            let jobSeekers = JSON.parse(localStorage.getItem('jobSeekers') || '[]');
+            
+            const filteredCandidates = jobSeekers.filter(candidate => {
+                const meetsExperience = !experience || candidate.experience >= parseInt(experience);
+                const meetsEducation = !education || candidate.education === education;
+                const meetsGender = !gender || candidate.gender === gender;
+                
+                return meetsExperience && meetsEducation && meetsGender;
+            });
+            
+            displayCandidates(filteredCandidates);
         });
     }
 
-    // Enhanced download function with tracking
-    window.downloadResume = function(candidateId) {
-        const jobSeekers = JSON.parse(localStorage.getItem('jobSeekers') || '[]');
-        const candidateIndex = jobSeekers.findIndex(js => js.id === candidateId);
+    // Display candidates function
+    function displayCandidates(candidates) {
+        const candidatesContainer = document.querySelector('#candidatesContainer');
+        candidatesContainer.innerHTML = '';
         
-        if (candidateIndex === -1) {
-            alert('Resume not found');
-            return;
-        }
-
-        const candidate = jobSeekers[candidateIndex];
-        
-        // Create and trigger download
-        const link = document.createElement('a');
-        link.href = candidate.resume;
-        link.download = candidate.resumeFileName || 'resume.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Update download statistics
-        jobSeekers[candidateIndex].downloadCount = (jobSeekers[candidateIndex].downloadCount || 0) + 1;
-        jobSeekers[candidateIndex].lastDownload = new Date().toISOString();
-        localStorage.setItem('jobSeekers', JSON.stringify(jobSeekers));
-
-        // Update download stats display
-        const downloadStats = document.getElementById('downloadStats');
-        downloadStats.textContent = `Downloads: ${jobSeekers[candidateIndex].downloadCount}`;
-    };
-
-    // Enhanced profile viewing function
-    window.viewProfile = function(candidateId) {
-        const jobSeekers = JSON.parse(localStorage.getItem('jobSeekers') || '[]');
-        const candidate = jobSeekers.find(js => js.id === candidateId);
-        
-        if (!candidate) {
-            alert('Profile not found');
-            return;
-        }
-
-        const profileModal = document.getElementById('profileModal');
-        const profileName = document.getElementById('profileName');
-        const profileContent = document.getElementById('profileContent');
-        const downloadStats = document.getElementById('downloadStats');
-
-        profileName.textContent = `${candidate.firstName} ${candidate.lastName}`;
-
-        profileContent.innerHTML = `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="space-y-3">
+        candidates.forEach(candidate => {
+            const candidateCard = document.createElement('div');
+            candidateCard.className = 'candidate-card fade-in p-4 border rounded-lg mb-4 bg-white shadow-sm';
+            candidateCard.innerHTML = `
+                <div class="flex justify-between items-start">
                     <div>
-                        <h3 class="font-medium text-gray-700">Contact Information</h3>
-                        <p class="text-gray-600">Email: ${candidate.email}</p>
-                        <p class="text-gray-600">Phone: ${candidate.phone}</p>
+                        <h3 class="text-lg font-medium">${candidate.firstName} ${candidate.lastName}</h3>
+                        <p class="text-gray-600">${candidate.education}</p>
+                        <p class="text-gray-600">${candidate.experience} years experience</p>
                     </div>
-                    
-                    <div>
-                        <h3 class="font-medium text-gray-700">Personal Details</h3>
-                        <p class="text-gray-600">Gender: ${candidate.gender}</p>
-                    </div>
+                    <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors" 
+                            onclick="viewProfile('${candidate.id}')">
+                        View Profile
+                    </button>
                 </div>
-
-                <div class="space-y-3">
-                    <div>
-                        <h3 class="font-medium text-gray-700">Professional Information</h3>
-                        <p class="text-gray-600">Education: ${candidate.education}</p>
-                        <p class="text-gray-600">Experience: ${candidate.experience} years</p>
-                        <p class="text-gray-600">Skills: ${candidate.skills || 'Not specified'}</p>
-                    </div>
-                    
-                    ${candidate.resume ? `
-                    <div>
-                        <h3 class="font-medium text-gray-700">Resume</h3>
-                        <button onclick="downloadResume('${candidate.id}')" 
-                                class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
-                            Download Resume
-                        </button>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-
-            ${candidate.about ? `
-            <div class="mt-4">
-                <h3 class="font-medium text-gray-700">About</h3>
-                <p class="text-gray-600">${candidate.about}</p>
-            </div>
-            ` : ''}
-        `;
-
-        // Display download statistics
-        downloadStats.textContent = `Downloads: ${candidate.downloadCount || 0}`;
-        profileModal.classList.remove('hidden');
-    };
-
-    // Other existing functions remain unchanged
-    window.closeProfileModal = function() {
-        const profileModal = document.getElementById('profileModal');
-        profileModal.classList.add('hidden');
-    };
-
-    // Login related functions
-    function toggleLogin(show) {
-        const loginModal = document.getElementById('loginModal');
-        loginModal.classList.toggle('hidden', !show);
+            `;
+            candidatesContainer.appendChild(candidateCard);
+        });
     }
 
-    function checkLoginStatus() {
-        const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-        const userType = localStorage.getItem('userType');
-        const loginButton = document.querySelector('.nav-container .btn-primary');
-
-        if (isLoggedIn) {
-            loginButton.textContent = 'Logout';
-            loginButton.addEventListener('click', logout);
-        } else {
-            loginButton.textContent = 'Login';
-            loginButton.addEventListener('click', () => toggleLogin(true));
-        }
-    }
-
-    function logout() {
-        localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('userType');
-        checkLoginStatus();
-        window.location.reload();
-    }
-
-    // Event listeners
+    // Login functionality
     loginButton.addEventListener('click', () => toggleLogin(true));
-    jobSeekerButton.addEventListener('click', () => showPortal(jobSeekerPortal));
-    employerButton.addEventListener('click', () => showPortal(employerPortal));
 
-    // Initialize the application
+    // Login form submission
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+
+        if (email === "employer@rokpa.com" && password === "employer123") {
+            localStorage.setItem('userType', 'employer');
+            localStorage.setItem('isLoggedIn', 'true');
+            alert('Logged in successfully as employer');
+            toggleLogin(false);
+            checkLoginStatus();
+        } else if (email === "jobseeker@rokpa.com" && password === "jobseeker123") {
+            localStorage.setItem('userType', 'jobseeker');
+            localStorage.setItem('isLoggedIn', 'true');
+            alert('Logged in successfully as job seeker');
+            toggleLogin(false);
+            checkLoginStatus();
+        } else {
+            alert('Invalid credentials. Please try again.');
+        }
+    });
+
+    // Check initial login status
     checkLoginStatus();
+});
+
+// Profile viewing functions
+function viewProfile(candidateId) {
+    const jobSeekers = JSON.parse(localStorage.getItem('jobSeekers') || '[]');
+    const candidate = jobSeekers.find(js => js.id === candidateId);
+    
+    if (!candidate) {
+        alert('Profile not found');
+        return;
+    }
+
+    const profileModal = document.getElementById('profileModal');
+    const profileName = document.getElementById('profileName');
+    const profileContent = document.getElementById('profileContent');
+
+    // Set candidate name
+    profileName.textContent = `${candidate.firstName} ${candidate.lastName}`;
+
+    // Build profile content
+    profileContent.innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="space-y-3">
+                <div>
+                    <h3 class="font-medium text-gray-700">Contact Information</h3>
+                    <p class="text-gray-600">Email: ${candidate.email}</p>
+                    <p class="text-gray-600">Phone: ${candidate.phone}</p>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium text-gray-700">Personal Details</h3>
+                    <p class="text-gray-600">Gender: ${candidate.gender}</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <h3 class="font-medium text-gray-700">Professional Information</h3>
+                    <p class="text-gray-600">Education: ${candidate.education}</p>
+                    <p class="text-gray-600">Experience: ${candidate.experience} years</p>
+                    <p class="text-gray-600">Skills: ${candidate.skills || 'Not specified'}</p>
+                </div>
+                
+                ${candidate.resume ? `
+                <div>
+                    <h3 class="font-medium text-gray-700">Resume</h3>
+                    <button onclick="downloadResume('${candidate.resume}')" 
+                            class="mt-2 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                        Download Resume
+                    </button>
+                </div>
+                ` : ''}
+            </div>
+        </div>
+
+        ${candidate.about ? `
+        <div class="mt-4">
+            <h3 class="font-medium text-gray-700">About</h3>
+            <p class="text-gray-600">${candidate.about}</p>
+        </div>
+        ` : ''}
+    `;
+
+    profileModal.classList.remove('hidden');
+}
+
+function closeProfileModal() {
+    const profileModal = document.getElementById('profileModal');
+    profileModal.classList.add('hidden');
+}
+
+function downloadResume(resumeUrl) {
+    window.open(resumeUrl, '_blank');
+}
+
+// Login related functions
+function toggleLogin(show) {
+    const loginModal = document.getElementById('loginModal');
+    loginModal.classList.toggle('hidden', !show);
+}
+
+function checkLoginStatus() {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    const userType = localStorage.getItem('userType');
+    const loginButton = document.querySelector('.nav-container .btn-primary');
+
+    if (isLoggedIn) {
+        loginButton.textContent = 'Logout';
+        loginButton.addEventListener('click', logout);
+    } else {
+        loginButton.textContent = 'Login';
+        loginButton.addEventListener('click', () => toggleLogin(true));
+    }
+}
+
+function logout() {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('userType');
+    checkLoginStatus();
+    window.location.reload();
+}
+
+// Close modals with escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeProfileModal();
+        const loginModal = document.getElementById('loginModal');
+        loginModal.classList.add('hidden');
+    }
+});
+
+// Close modals when clicking outside
+document.addEventListener('click', function(event) {
+    const profileModal = document.getElementById('profileModal');
+    const loginModal = document.getElementById('loginModal');
+    
+    if (event.target === profileModal) {
+        closeProfileModal();
+    }
+    if (event.target === loginModal) {
+        loginModal.classList.add('hidden');
+    }
 });
